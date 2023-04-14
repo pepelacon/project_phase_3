@@ -6,6 +6,8 @@ from sqlalchemy.orm import sessionmaker
 
 engine = create_engine('sqlite:///project.db')
 Base = declarative_base()
+Session = sessionmaker(bind=engine)
+session = Session()
 
 class Manager(Base):
 
@@ -14,6 +16,7 @@ class Manager(Base):
     id = Column(Integer(), primary_key=True)
     name = Column(String())
     email = Column(String())
+    employee = relationship("Employee", backref="employees")
 
     def __repr__(self):
         return f"Manager {self.id}: " \
@@ -21,9 +24,43 @@ class Manager(Base):
             + f"Email {self.email}"
     
 
-    
-Session = sessionmaker(bind=engine)
-session = Session()
+
+class Employee(Base):
+    __tablename__ = 'employees'
+
+    id = Column(Integer(), primary_key=True)
+    name = Column(String())
+    email = Column(String())
+    phone_number = Column(Integer())
+    position = Column(String())
+    manager_id = Column(Integer(), ForeignKey('managers.id'))
+
+    def __repr__(self):
+        return f"Employee_Id {self.id}: " \
+            + f"Employee name {self.name}, " \
+            + f"Email {self.email}, " \
+            + f"Phone Number {self.phone_number}, " \
+            + f"Position {self.position}, " \
+            + f"Manager {self.manager_id}" 
+
+
+# class Project(Base):
+#     __tablename__ = 'projects'
+
+#     id = Column(Integer(), primary_key=True)
+#     name = Column(String())
+#     description = Column(String())
+#     manager_id = Column(Integer(), ForeignKey('managers.id'))
+#     employee_id = Column(Integer(), ForeignKey('employees.id'))
+
+#     def __repr__(self):
+#         return f"Project_Id {self.id}: " \
+#             + f"Project name {self.name}, " \
+#             + f"Description name {self.description}, " \
+#             + f"Manager Name {self.manager_id}, " \
+#             + f"Employee Name {self.employee_id}"
+
+
 
 
 # lib/sqlalchemy_sandbox.py
