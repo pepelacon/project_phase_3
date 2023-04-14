@@ -32,7 +32,7 @@ if __name__ == '__main__':
             email = faker.email(),
             phone_number = random.randint(1000000000, 9999999999),
             position = random.choice(position),
-            manager = random.randint(1, len(session.query(Manager).all()))
+            manager_id = random.randint(1, len(session.query(Manager).all()))
         )
 
         print(employee)
