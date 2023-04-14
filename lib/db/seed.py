@@ -31,11 +31,25 @@ if __name__ == '__main__':
             name = faker.name(),
             email = faker.email(),
             phone_number = random.randint(1000000000, 9999999999),
-            position = random.choice(position),
-            manager_id = random.randint(1, len(session.query(Manager).all()))
+            position = random.choice(position)
         )
 
         print(employee)
         session.add(employee)
         session.commit()
+
+        
+    session.query(Employee).delete()
+    for i in range(10):
+        employee = Employee(
+            name = faker.name(),
+            email = faker.email(),
+            phone_number = random.randint(1000000000, 9999999999),
+            position = random.choice(position)
+        )
+
+        print(employee)
+        session.add(employee)
+        session.commit()
+    
 

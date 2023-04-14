@@ -16,13 +16,12 @@ class Manager(Base):
     id = Column(Integer(), primary_key=True)
     name = Column(String())
     email = Column(String())
-    employee = relationship("Employee", backref="employees")
+    projects = relationship("Project", back_populates = "manager")
 
     def __repr__(self):
         return f"Manager {self.id}: " \
             + f"Manager name {self.name}, " \
             + f"Email {self.email}"
-    
 
 
 class Employee(Base):
@@ -33,32 +32,33 @@ class Employee(Base):
     email = Column(String())
     phone_number = Column(Integer())
     position = Column(String())
-    manager_id = Column(Integer(), ForeignKey('managers.id'))
+    projects = relationship("Project", back_populates = "employee")
 
     def __repr__(self):
         return f"Employee_Id {self.id}: " \
             + f"Employee name {self.name}, " \
             + f"Email {self.email}, " \
             + f"Phone Number {self.phone_number}, " \
-            + f"Position {self.position}, " \
-            + f"Manager {self.manager_id}" 
+            + f"Position {self.position}"
 
 
-# class Project(Base):
-#     __tablename__ = 'projects'
+class Project(Base):
+    __tablename__ = 'projects'
 
-#     id = Column(Integer(), primary_key=True)
-#     name = Column(String())
-#     description = Column(String())
-#     manager_id = Column(Integer(), ForeignKey('managers.id'))
-#     employee_id = Column(Integer(), ForeignKey('employees.id'))
+    id = Column(Integer(), primary_key=True)
+    name = Column(String())
+    description = Column(String())
+    manager_id = Column(Integer(), ForeignKey('managers.id'))
+    employee_id = Column(Integer(), ForeignKey('employees.id'))
+    manager = relationship("Manager", back_populates="projects")
+    employee = relationship("Employee", back_populates="projects")
 
-#     def __repr__(self):
-#         return f"Project_Id {self.id}: " \
-#             + f"Project name {self.name}, " \
-#             + f"Description name {self.description}, " \
-#             + f"Manager Name {self.manager_id}, " \
-#             + f"Employee Name {self.employee_id}"
+    def __repr__(self):
+        return f"Project_Id {self.id}: " \
+            + f"Project name {self.name}, " \
+            + f"Description name {self.description}, " \
+            + f"Manager Name {self.manager_id}, " \
+            + f"Employee Name {self.employee_id}"
 
 
 

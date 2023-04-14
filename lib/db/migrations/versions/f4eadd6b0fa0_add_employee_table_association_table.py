@@ -24,8 +24,6 @@ def upgrade() -> None:
     sa.Column('email', sa.String(), nullable=True),
     sa.Column('phone_number', sa.Integer(), nullable=True),
     sa.Column('position', sa.String(), nullable=True),
-    sa.Column('manager_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['manager_id'], ['managers.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
