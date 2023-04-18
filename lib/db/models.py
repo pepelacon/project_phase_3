@@ -24,9 +24,9 @@ class Manager(Base):
     employees = relationship("Employee", back_populates = "manager")
 
     def __repr__(self):
-        return f"Manager {self.id}: " \
-            + f"Manager name {self.name}, " \
-            + f"Email {self.email}"
+        return f"Manager_ID: {self.id}, " \
+            + f"Manager_name: {self.name}, " \
+            + f"Email: {self.email}."
 
 
 class Employee(Base):
@@ -43,11 +43,14 @@ class Employee(Base):
     manager = relationship("Manager", back_populates = "employees")
 
     def __repr__(self):
-        return f"Employee_Id {self.id}: " \
-            + f"Employee name {self.name}, " \
-            + f"Email {self.email}, " \
-            + f"Phone Number {self.phone_number}, " \
-            + f"Position {self.position}"
+        return f"Employee_ID: {self.id}, " \
+            + f"Name: {self.name}, " \
+            + f"Email: {self.email}, " \
+            + f"Phone_Number: {self.phone_number}, " \
+            + f"Position: {self.position}, "\
+            + f"Manager_ID: {self.manager_id}, "\
+            + f"Project_ID: {self.project_id}, "\
+            
 
 
 class Project(Base):
@@ -61,10 +64,10 @@ class Project(Base):
     employees = relationship("Employee", back_populates = "project")
 
     def __repr__(self):
-        return f"Project_Id {self.id}: " \
-            + f"Project name {self.name}, " \
-            + f"Description name {self.description}, " \
-            + f"Manager Name {self.manager_id}, " \
+        return f"Project_ID: {self.id}, " \
+            + f"Project_Name: {self.name}, " \
+            + f"Project_Description: {self.description}, " \
+            + f"Manager_ID: {self.manager_id}." \
     
 Base.metadata.create_all(engine)
 

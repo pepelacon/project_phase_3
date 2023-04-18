@@ -3,47 +3,25 @@ from db.models import Base, Manager, Employee
 from helpers import sign_up,add_employee,delete_employee,add_project,sign_in
 import sys
 
-# if __name__ == '__main__':
-    # add_employee()
-
-    # add_manager()
+if __name__ == '__main__':
     
-    
-    # print('Thanks for using my CLI')
+    def start() :
+        print('Welcome to the project manager tool!')
+        
+        options = {
+            '1': sign_in,
+            '2': sign_up
+        }  
+        print("Choose an option:")
+        print("1. Manager Sign in")
+        print("2. Manager Sign up")
+        
+        choice = input("Enter your choice (1, 2): ")
 
-
-def start() :
-    print('Welcome to the project manager tool!')
-    
-    options = {
-        '1': sign_in,
-        '2': sign_up
-    }  
-    print("Choose an option:")
-    print("1. Manager Sign in")
-    print("2. Manager Sign up")
-    
-    # # options = {
-    #     '1': add_manager,
-    #     '2': add_employee,
-    #     '3': delete_employee,
-    #     '4': add_project
-    # }
-
-    # # prompt the user for their choice
-    # print("Choose an option:")
-    # print("1. Add Manager")
-    # print("2. Add Employee")
-    # print("3. del Employee")
-    # print("4. add project ")
-
-    choice = input("Enter your choice (1, 2): ")
-
-    # invoke the corresponding function based on the user's choice
-    if choice in options:
-        options[choice]()
-    else:
-        print("Invalid choice.")
-        sys.exit(1)
-    
-start()
+        if choice in options:
+            options[choice]()
+        else:
+            print("Invalid choice.")
+            sys.exit(1)
+        
+    start()

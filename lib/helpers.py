@@ -15,31 +15,25 @@ session = Session()
 @click.option('--id', prompt='Enter  Manager id', help='manager name')
 def select_manager(id):
     user_manager = session.query(Manager).filter(Manager.id == id).first()
-    click.echo(f"Hello {user_manager.name} ")
+    click.echo(f"---- Hello {user_manager.name} ")
     manager_menu(id)
 
 def manager_menu(id):
-    options = {
-            '1': show_all_manager_projects,
-            '2': add_project,
-            '3': show_all_manager_employees,
-            '4': add_employee
-        }
     print("Choose an option:")
     print("1. do you want to see your projects?")
     print("2. do you want to add a new project?")
     print("3. do you want to see your employees?")
     print("4. do you want to add a new employee?")
-    choice = input("Enter your choice (1, 2,3): ")
+    choice = input("Enter your choice (1, 2, 3, 4): ")
 
     if choice == '1' :
-        options[choice](session,id)
+        show_all_manager_projects(session,id)
     elif  choice == '2':
-        add_project()
+        add_project(id)
     elif  choice == '3':
-        options[choice](session,id)
+        show_all_manager_employees(session,id)
     elif  choice == '4':
-        add_employee()
+        add_employee(id)
     else:
         print("Invalid choice.")
         sys.exit(1)
@@ -60,7 +54,7 @@ def add_manager(name, email):
     manager = Manager(name = name , email = email)
     session.add(manager)
     session.commit()
-    click.echo(f"Hello {name} : your id is  {manager.id}!")
+    click.echo(f"---- Hello {name} , {email}: your ID is {manager.id}!")
     manager_menu(manager.id)
     
     
@@ -69,33 +63,33 @@ def add_manager(name, email):
 @click.option('--email', prompt = 'Enter Email', help = 'employee email')
 @click.option('--phone_number', prompt = 'Enter phone_number', help = 'employee phone_number')
 @click.option('--position', prompt = 'Enter position', help = 'employee position')
-@click.option('--manager_id', prompt = 'Enter manager_id', help = 'employee manager_id')
+@click.argument('manager_id')
 @click.option('--project_id', prompt = 'Enter project_id', help = 'employee project_id')
 def add_employee(name, email,phone_number,position,manager_id,project_id):
     """Simple program that greets NAME for a total of COUNT times."""
     employee = Employee(name = name , email = email, phone_number = phone_number, position=position,manager_id=manager_id,project_id=project_id)
     session.add(employee)
     session.commit()
-    click.echo(f"Hello {name} -  {email}!")
-
+    click.echo(f"---- Created Employee: {employee}")
+    manager_menu(manager_id)
 
 @click.command()
 @click.option('--name', prompt='Enter New project name', help='project name')
 @click.option('--description', prompt = 'Enter description', help = 'project description')
-@click.option('--manager_id', prompt = 'Enter manager_id', help = 'project manager_id')
+@click.argument('manager_id')
 def add_project(name, description,manager_id):
     """Simple program that greets NAME for a total of COUNT times."""
     project = Project(name = name , description = description, manager_id=manager_id)
     session.add(project)
     session.commit()
-    click.echo(f"Created project: {name} , Description  {description} - {manager_id}!")
+    click.echo(f"---- Created project: {project}")
     manager_menu(manager_id)
 
 #### edit / update ###
 
 
 
-### queries ####
+### QUERIES ####
 def show_all_managers(session):
     #### BUILD TABLE FORMATTING
     all_managers = session.query(Manager).all()
@@ -106,11 +100,13 @@ def show_all_manager_projects(session,id):
     #### BUILD TABLE FORMATTING
     all_manager_project = session.query(Project).filter(Project.manager_id == id).all()
     print(all_manager_project)
+    manager_menu(id)
 
 def show_all_manager_employees(session,id):
     #### BUILD TABLE FORMATTING
     all_manager_employee = session.query(Employee).filter(Employee.manager_id == id).all()
     print(all_manager_employee)
+    manager_menu(id)
 
 
 
