@@ -3,14 +3,18 @@ from sqlalchemy import ForeignKey, Table, Column, Integer, String, DateTime, Met
 from sqlalchemy.orm import relationship, backref, declarative_base
 from sqlalchemy.orm import sessionmaker
 
+import os
 
-engine = create_engine('sqlite:////Users/daniel/Development/code/phase-3/project/project_phase_3/lib/db/project.db')
+package_dir = '/'.join(os.path.abspath(os.path.dirname(__file__)).split('/')[0:-1])
+db_dir = os.path.join(package_dir, 'project.db')
+SQLITE_URL = ''.join(['sqlite:///', db_dir])
+
 Base = declarative_base()
+engine = create_engine(SQLITE_URL)
 Session = sessionmaker(bind=engine)
 session = Session()
 
 class Manager(Base):
-
     __tablename__ = 'managers'
 
     id = Column(Integer(), primary_key=True)

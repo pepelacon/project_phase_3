@@ -1,14 +1,20 @@
-from faker import Faker
 from models import (Base, Manager, Employee)
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import random
 
+import os
+import random
+from faker import Faker
 faker = Faker()
+
+package_dir = '/'.join(os.path.abspath(os.path.dirname(__file__)).split('/')[0:-1])
+db_dir = os.path.join(package_dir, 'project.db')
+SQLITE_URL = ''.join(['sqlite:///', db_dir])
 
 
 if __name__ == '__main__':
-    engine = create_engine('sqlite:////Users/daniel/Development/code/phase-3/project/project_phase_3/lib/db/project.db')
+    engine = create_engine(SQLITE_URL)
     Session = sessionmaker(bind=engine)
     session = Session()
 
@@ -37,6 +43,3 @@ if __name__ == '__main__':
         session.add(employee)
         session.commit()
 
- 
-    
-# /Users/daniel/Development/code/phase-3/project/project_phase_3/lib/project.db
