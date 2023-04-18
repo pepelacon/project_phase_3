@@ -8,7 +8,7 @@ faker = Faker()
 
 
 if __name__ == '__main__':
-    engine = create_engine('sqlite:///project.db')
+    engine = create_engine('sqlite:////Users/daniel/Development/code/phase-3/project/project_phase_3/lib/db/project.db')
     Session = sessionmaker(bind=engine)
     session = Session()
 
@@ -21,7 +21,6 @@ if __name__ == '__main__':
 
         print(manager)
         session.add(manager)
-        session.commit()
 
     position = ["Jr. Dev", "Sr. Dev", "UX Specialist"]
 
@@ -38,18 +37,6 @@ if __name__ == '__main__':
         session.add(employee)
         session.commit()
 
-        
-    session.query(Employee).delete()
-    for i in range(10):
-        employee = Employee(
-            name = faker.name(),
-            email = faker.email(),
-            phone_number = random.randint(1000000000, 9999999999),
-            position = random.choice(position)
-        )
-
-        print(employee)
-        session.add(employee)
-        session.commit()
+ 
     
-
+# /Users/daniel/Development/code/phase-3/project/project_phase_3/lib/project.db
