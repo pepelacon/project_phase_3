@@ -21,6 +21,7 @@ class Manager(Base):
     name = Column(String())
     email = Column(String())
     projects = relationship("Project", back_populates = "manager")
+    employees = relationship("Employee", back_populates = "manager")
 
     def __repr__(self):
         return f"Manager {self.id}: " \
@@ -36,7 +37,10 @@ class Employee(Base):
     email = Column(String())
     phone_number = Column(Integer())
     position = Column(String())
-    projects = relationship("Project", back_populates = "employee")
+    manager_id = Column(Integer(), ForeignKey('managers.id'))
+    project_id = Column(Integer(), ForeignKey('projects.id'))
+    project = relationship("Project", back_populates = "employees")
+    manager = relationship("Manager", back_populates = "employees")
 
     def __repr__(self):
         return f"Employee_Id {self.id}: " \
@@ -53,16 +57,14 @@ class Project(Base):
     name = Column(String())
     description = Column(String())
     manager_id = Column(Integer(), ForeignKey('managers.id'))
-    employee_id = Column(Integer(), ForeignKey('employees.id'))
-    manager = relationship("Manager", back_populates="projects")
-    employee = relationship("Employee", back_populates="projects")
+    manager = relationship("Manager", back_populates = "projects")
+    employees = relationship("Employee", back_populates = "project")
 
     def __repr__(self):
         return f"Project_Id {self.id}: " \
             + f"Project name {self.name}, " \
             + f"Description name {self.description}, " \
             + f"Manager Name {self.manager_id}, " \
-            + f"Employee Name {self.employee_id}"
     
 Base.metadata.create_all(engine)
 
