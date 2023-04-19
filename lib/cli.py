@@ -2,26 +2,40 @@
 from db.models import Base, Manager, Employee
 from helpers import sign_up,add_employee,delete_employee,add_project,sign_in
 import sys
+import pyfiglet
 
 if __name__ == '__main__':
     
     def start() :
         print('Welcome to the project manager tool!')
-        
+        text = "WTFAlchemy"
+        ascii_art = pyfiglet.figlet_format(text)
+        print(ascii_art)
         options = {
             '1': sign_in,
             '2': sign_up
         }  
         print("Choose an option:")
-        print("1. Manager Sign in")
-        print("2. Manager Sign up")
+        print("----------------------")
+        print("| 1. Manager Sign IN |")
+        print("----------------------")
+        print("| 2. Manager Sign UP |")
+        print("----------------------")
         
-        choice = input("Enter your choice (1, 2): ")
+        
+        while True:
+            choice = input("Enter your choice (1, 2): ")
+            if choice in options:
+                try:
 
-        if choice in options:
-            options[choice]()
-        else:
-            print("Invalid choice.")
-            sys.exit(1)
-        
+                    options[choice]()
+                except ValueError:
+                    print("Sorry, I didn't understand that.")
+            else:
+                print("-------------------------------------------")
+                print("Sorry,you need to chose one of the options.")
+                print("-------------------------------------------")
+
     start()
+
+  
