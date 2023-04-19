@@ -22,12 +22,12 @@ def select_manager(id):
     manager_menu(id)
 
 def manager_menu(id):
-    options = {
-            '1': show_all_manager_projects,
-            '2': add_project,
-            '3': show_all_manager_employees,
-            '4': add_employee
-        }
+    # options = {
+    #         '1': show_all_manager_projects,
+    #         '2': add_project,
+    #         '3': show_all_manager_employees,
+    #         '4': add_employee
+    #     }
     print("Choose an option:")
     print("1. do you want to see your projects?")
     print("2. do you want to add a new project?")
@@ -37,16 +37,16 @@ def manager_menu(id):
     print("6. do you want to delete a manager?")
     print("7. do you want to update a project?")
     
-    choice = input("Enter your choice (1, 2, 3, 4, 5 , 6): ")
+    choice = input("Enter your choice (1, 2, 3, 4, 5, 6): ")
 
     if choice == '1' :
-        options[choice](session,id)
+        show_all_manager_projects(session,id)
     elif  choice == '2':
         add_project()
     elif  choice == '3':
-        options[choice](session,id)
+        show_all_manager_employees(session,id)
     elif  choice == '4':
-        add_employee(id)
+        add_employee()
     elif  choice == '5':
         delete_employee()
     elif  choice == '6':
@@ -93,6 +93,10 @@ def add_employee(name, email,phone_number,position,manager_id,project_id):
     click.echo(f"Hello {name} -  {email}!")
 
 
+
+
+############## ! ADD PROJECT ---------------
+
 @click.command()
 @click.option('--name', prompt='Enter New project name', help='project name')
 @click.option('--description', prompt = 'Enter description', help = 'project description')
@@ -102,20 +106,30 @@ def add_project(name, description,manager_id):
     project = Project(name = name , description = description, manager_id=manager_id)
     session.add(project)
     session.commit()
+    all_manager_employee = session.query(Employee).filter(Employee.manager_id == manager_id).all()
+    chosen_employee = int(input("Enter employee ID for project: "))
+    print(all_manager_employee)
+    employee_for_this_project =  session.query(Employee).filter(Employee.id == chosen_employee).first()
+    employee_for_this_project.project_id = project.id
+    employee_for_this_project.manager_id = manager_id
+    session.add(employee_for_this_project)
+    session.commit()
     click.echo(f"Created project: {name} , Description  {description} - {manager_id}!")
     manager_menu(manager_id)
 
-#### edit / update ###
+
+
+
+############ edit / update #################
 
 @click.command()
 @click.option('--project_id', prompt='Enter project id of project to edit', help='project name')
 @click.option('--manager_id', prompt = 'Enter your manager id', help = 'project description')
 def update_project(manager_id, project_id):
     projects = session.query(Project).filter((Project.manager_id == manager_id ) | (Project.manager_id == None)).all()
-
+    employees = session.query(Employee).filter(Employee.project_id == project_id ).all()
     if int(project_id) in [project.id for project in projects]:
         project = session.query(Project).filter( Project.id == project_id).first()
-
         choice = input('Do you want to change the project name: y/n?')
         if choice == 'y' :
             proj_input = input('Enter new project name: ')
@@ -138,24 +152,16 @@ def update_project(manager_id, project_id):
         if choice == 'y' :
             proj_input = input('Enter new project manager ID: ')
             project.manager_id= proj_input
+            for employee in employees:
+                employee.manager_id = proj_input
+                session.add(employee)
+                session.commit()
             session.add(project)
             session.commit()
         else:
             pass
-        
-        
     else:
         print('not')
-    
-    
-    
-    # session.add(project)
-    # session.commit()
-    # click.echo(f"Created project: {name} , Description  {description} - {manager_id}!")
-    # manager_menu(manager_id)
-
-
-    # if employee.manager_id == int(manager_id):
 
 
 ### queries ####
@@ -168,7 +174,6 @@ def show_all_managers(session):
     for i in range(0,len(all_managers)):
         table.add_row([man_id[i], man_name[i]])
     print(table)
-
 
 
 def show_all_manager_projects(session,id):
