@@ -113,30 +113,33 @@ def show_all_managers(session):
     print(table)
 
 
+
 def show_all_manager_projects(session,id):
     #### BUILD TABLE FORMATTING
     all_manager_project = session.query(Project).filter(Project.manager_id == id).all()
     print(all_manager_project)
+    manager_menu(id)
 
 def show_all_manager_employees(session,id):
     #### BUILD TABLE FORMATTING
     all_manager_employee = session.query(Employee).filter(Employee.manager_id == id).all()
     print(all_manager_employee)
+    manager_menu(id)
 
 
 
 #### DELETE ###    
 @click.command()
-# @click.argument('id)')
-@click.option('--employee_id', prompt='Enter Employee ID of Employee to Delete', help='employee name')  
-@click.option('--manager_id', prompt='Enter Employee ID of Employee to Delete', help='employee name')  
-def delete_employee(employee_id,manager_id):
-    print(session.query(Employee).filter(Employee.manager_id == manager_id).all())
-    if employee_id in session.query(Employee).filter(Employee.manager_id == manager_id).all():
-        query = session.query(Employee).filter(Employee.id == manager_id)
-        query.delete()
+@click.option('--employee_id', prompt='Enter Employee ID', help='employee name')  
+@click.option('--manager_id', prompt='Enter Manager ID', help='employee name')  
+def delete_employee(employee_id, manager_id):
+    employee = session.query(Employee).filter(Employee.id == employee_id).first()
+    if employee.manager_id == int(manager_id):
+        session.delete(employee)
         session.commit()
-        manager_menu(id)
+        manager_menu(manager_id)
     else:
-        print('not your employee')
+        print('This employee does not belong to this manager.')
+
+
 
