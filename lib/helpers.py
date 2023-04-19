@@ -15,7 +15,7 @@ session = Session()
 
 ###sign in
 @click.command()
-@click.option('--id', prompt='Enter your accaunt ID', help='manager name')
+@click.option('--id', prompt='Enter your account ID', help='manager name')
 def select_manager(id):
     user_manager = session.query(Manager).filter(Manager.id == id).first()
     click.echo(f"Hello {user_manager.name} ")
@@ -34,7 +34,10 @@ def manager_menu(id):
     print("3. do you want to see your employees?")
     print("4. do you want to add a new employee?")
     print("5. do you want to delete an employee?")
-    choice = input("Enter your choice (1, 2, 3, 4, 5): ")
+    print("6. do you want to delete a manager?")
+    print("7. do you want to update a project?")
+    
+    choice = input("Enter your choice (1, 2, 3, 4, 5 , 6): ")
 
     if choice == '1' :
         options[choice](session,id)
@@ -46,6 +49,11 @@ def manager_menu(id):
         add_employee(id)
     elif  choice == '5':
         delete_employee()
+    elif  choice == '6':
+        delete_manager()
+    elif  choice == '7':
+        update_project()
+    
     else:
         print("Invalid choice.")
         sys.exit(1)
@@ -99,6 +107,55 @@ def add_project(name, description,manager_id):
 
 #### edit / update ###
 
+@click.command()
+@click.option('--project_id', prompt='Enter project id of project to edit', help='project name')
+@click.option('--manager_id', prompt = 'Enter your manager id', help = 'project description')
+def update_project(manager_id, project_id):
+    projects = session.query(Project).filter((Project.manager_id == manager_id ) | (Project.manager_id == None)).all()
+
+    if int(project_id) in [project.id for project in projects]:
+        project = session.query(Project).filter( Project.id == project_id).first()
+
+        choice = input('Do you want to change the project name: y/n?')
+        if choice == 'y' :
+            proj_input = input('Enter new project name: ')
+            project.name= proj_input
+            session.add(project)
+            session.commit()
+        else:
+            pass
+        
+        choice = input('Do you want to change the project description: y/n?')
+        if choice == 'y' :
+            proj_input = input('Enter new project description: ')
+            project.description= proj_input
+            session.add(project)
+            session.commit()
+        else:
+            pass
+        
+        choice = input('Do you want to change the project manager: y/n?')
+        if choice == 'y' :
+            proj_input = input('Enter new project manager ID: ')
+            project.manager_id= proj_input
+            session.add(project)
+            session.commit()
+        else:
+            pass
+        
+        
+    else:
+        print('not')
+    
+    
+    
+    # session.add(project)
+    # session.commit()
+    # click.echo(f"Created project: {name} , Description  {description} - {manager_id}!")
+    # manager_menu(manager_id)
+
+
+    # if employee.manager_id == int(manager_id):
 
 
 ### queries ####
@@ -108,7 +165,7 @@ def show_all_managers(session):
     man_name = [manager.name for manager in all_managers]
     table = PrettyTable()
     table.field_names = ["ID", "Name"]
-    for i in range(1,len(all_managers)):
+    for i in range(0,len(all_managers)):
         table.add_row([man_id[i], man_name[i]])
     print(table)
 
@@ -140,6 +197,18 @@ def delete_employee(employee_id, manager_id):
         manager_menu(manager_id)
     else:
         print('This employee does not belong to this manager.')
-
+        
+        
+@click.command()
+@click.option('--manager_id', prompt='Enter your manager ID', help='employee name')  
+@click.option('--deleted_manager_id', prompt='Enter Manager ID of manager to delete', help='employee name')  
+def delete_manager(manager_id,deleted_manager_id):
+        manager = session.query(Manager).filter(Manager.id == deleted_manager_id).first()
+        session.delete(manager)
+        session.commit()
+        if int(manager_id) == int(deleted_manager_id):
+            print('Congratulations, you are FREEEEEEE!!!!!! Good luck with Antonio')
+        else:
+            manager_menu(manager_id)
 
 
