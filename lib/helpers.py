@@ -24,7 +24,8 @@ def manager_menu(id):
     print("2. do you want to add a new project?")
     print("3. do you want to see your employees?")
     print("4. do you want to add a new employee?")
-    choice = input("Enter your choice (1, 2, 3, 4): ")
+    print("5. do you want to delete an employee?")
+    choice = input("Enter your choice (1, 2, 3, 4, 5): ")
 
     if choice == '1' :
         show_all_manager_projects(session,id)
@@ -34,6 +35,8 @@ def manager_menu(id):
         show_all_manager_employees(session,id)
     elif  choice == '4':
         add_employee(id)
+    elif  choice == '5':
+        delete_employee()
     else:
         print("Invalid choice.")
         sys.exit(1)
@@ -88,12 +91,18 @@ def add_project(name, description,manager_id):
 #### edit / update ###
 
 
-
+from prettytable import PrettyTable
 ### QUERIES ####
 def show_all_managers(session):
-    #### BUILD TABLE FORMATTING
     all_managers = session.query(Manager).all()
-    print(all_managers)
+    man_id = [manager.id for manager in all_managers]
+    man_name = [manager.name for manager in all_managers]
+    table = PrettyTable()
+    table.field_names = ["ID", "Name"]
+    for i in range(1,len(all_managers)):
+        table.add_row([man_id[i], man_name[i]])
+    print(table)
+    
 
 
 def show_all_manager_projects(session,id):
@@ -112,10 +121,16 @@ def show_all_manager_employees(session,id):
 
 #### DELETE ###    
 @click.command()
-@click.option('--id', prompt='Enter New Employee id', help='employee name')  
-def delete_employee(id):
-    query = session.query(Employee).filter(Employee.id == id)
-    query.delete()
-    session.commit()
-
+# @click.argument('id)')
+@click.option('--employee_id', prompt='Enter Employee ID of Employee to Delete', help='employee name')  
+@click.option('--manager_id', prompt='Enter Employee ID of Employee to Delete', help='employee name')  
+def delete_employee(employee_id,manager_id):
+    print(session.query(Employee).filter(Employee.manager_id == manager_id).all())
+    if employee_id in session.query(Employee).filter(Employee.manager_id == manager_id).all():
+        query = session.query(Employee).filter(Employee.id == manager_id)
+        query.delete()
+        session.commit()
+        manager_menu(id)
+    else:
+        print('not your employee')
 
