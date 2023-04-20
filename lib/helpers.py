@@ -42,7 +42,7 @@ def manager_menu(id):
     if choice == '1' :
         show_all_manager_projects(session,id)
     elif  choice == '2':
-        add_project()
+        add_project(id)
     elif  choice == '3':
         show_all_manager_employees(session,id)
     elif  choice == '4':
@@ -97,18 +97,17 @@ def add_employee(name, email,phone_number,position,manager_id,project_id):
 
 ############## ! ADD PROJECT ---------------
 
-@click.command()
-@click.option('--name', prompt='Enter New project name', help='project name')
-@click.option('--description', prompt = 'Enter description', help = 'project description')
-@click.option('--manager_id', prompt = 'Enter manager_id', help = 'project manager_id')
-def add_project(name, description,manager_id):
-    """Simple program that greets NAME for a total of COUNT times."""
-    project = Project(name = name , description = description, manager_id=manager_id)
+
+def add_project(manager_id):
+    name = input("Enter New project name: ")
+    description = input("Enter description: ")
+    project = Project(name = name , description = description, manager_id = manager_id)
     session.add(project)
     session.commit()
     all_manager_employee = session.query(Employee).filter(Employee.manager_id == manager_id).all()
+    print("Your employee: ")
+    [print(f'ID: {emp.id} | Employee name: {emp.name}') for emp in all_manager_employee]
     chosen_employee = int(input("Enter employee ID for project: "))
-    print(all_manager_employee)
     employee_for_this_project =  session.query(Employee).filter(Employee.id == chosen_employee).first()
     employee_for_this_project.project_id = project.id
     employee_for_this_project.manager_id = manager_id
@@ -194,7 +193,7 @@ def show_all_manager_projects(session,id):
     print(table)
     manager_menu(id)
 
-def show_all_manager_employees(session,id):
+def show_all_manager_employees(session, id):
     #### BUILD TABLE FORMATTING
     all_manager_employee = session.query(Employee).filter(Employee.manager_id == id).all()
     emp_id = [employee.id for employee in all_manager_employee]
