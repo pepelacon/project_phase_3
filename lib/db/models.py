@@ -49,7 +49,7 @@ class Employee(Base):
             + f"Phone_Number: {self.phone_number}, " \
             + f"Position: {self.position}, "\
             + f"Manager_ID: {self.manager_id}, "\
-            + f"Project_ID: {self.project_id}, "\
+            + f"Project_ID: {self.project_id}. "\
             
 
 

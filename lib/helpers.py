@@ -2,7 +2,6 @@ from db.models import Base, Manager, Employee, Project
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from prettytable import PrettyTable
-import click
 import sys
 
 
@@ -23,15 +22,17 @@ def select_manager():
             print("Invalid choice. Chose valid manager ID")
             continue
     print("********************************")
-    click.echo(f"Hello {user_manager.name} ")
+    print(f"Hello {user_manager.name} ")
     print("********************************")
 
     manager_menu(id)
 
 
 def manager_menu(id):
-   
+
     while True:
+
+        print("MAIN MENU")
         print("Choose an option:")
         print("--------------------------")
         print("| 1 | See your projects  |")
@@ -59,7 +60,7 @@ def manager_menu(id):
         elif choice == '6':
             delete_manager(id)
         elif choice == '7':
-            update_project()
+            update_project(id)
         elif choice == '8':
             sign_out()
         else:
@@ -82,17 +83,19 @@ def sign_in():
 
 def sign_up():
     add_manager()
+    
+def exit_app():
+    sys.exit(1)
 
 ### Create New ####
-@click.command()
-@click.option('--name', prompt='Enter New Manager name', help='manager name')
-@click.option('--email', prompt = 'Enter Email', help = 'manager email')
-def add_manager(name, email):
-    """Simple program that greets NAME for a total of COUNT times."""
+
+def add_manager():
+    name= input('Enter New Manager name: ')
+    email=input('Enter Email: ')
     manager = Manager(name = name , email = email)
     session.add(manager)
     session.commit()
-    click.echo(f"Hello {name} : your id is  {manager.id}!")
+    print(f"Hello {name} , {email} : your id is {manager.id}!")
     manager_menu(manager.id)
     
 
@@ -107,57 +110,60 @@ def add_employee(manager_id):
 
     ######## ADDD PRETYY TABLES ###########
     all_manager_project = session.query(Project).filter((Project.manager_id == manager_id ) | (Project.manager_id == None)).all()
-    print("Your employee: ")
+    print("list of current projects to choose for your new employee:")
     [print(f'ID: {proj.id} | Project name: {proj.name} | Project manager ID: {proj.manager_id}') for proj in all_manager_project]
     projects_id = [proj.id for proj in all_manager_project]
     print(projects_id)
     while True:
         try:
-            chosen_proj = int(input("Enter project ID for employee: "))
+            chosen_proj = int(input("Enter project ID to assign employee: "))
         except ValueError:
-            print("Invalid choice. Chose valid projecct ID")
+            print("Invalid choice. Chose valid project ID")
             continue
         if chosen_proj in projects_id:
                 break
         else:
-            print("Invalid choice. Chose valid projecct ID")
+            print("Invalid choice. Chose valid project ID")
     employee = Employee(name = name , email = email, phone_number = phone_number, position=position, manager_id=manager_id, project_id=chosen_proj)
     session.add(employee)
     session.commit()
-    click.echo(f"Created new {employee}!")
+    print(f"Created new {employee}!")
     manager_menu(manager_id)
 
 
 ############## ! ADD PROJECT ---------------
 
 def add_project(manager_id):
-    name = input("Enter New project name: ")
-    description = input("Enter description: ")
-    project = Project(name = name , description = description, manager_id = manager_id)
-    session.add(project)
-    session.commit()
     all_manager_employee = session.query(Employee).filter(Employee.manager_id == manager_id).all()
-    print("Your employee: ")
-    [print(f'ID: {emp.id} | Employee name: {emp.name}') for emp in all_manager_employee]
     employees_id = [emp.id for emp in all_manager_employee]
-    print(employees_id)
-    while True:
-        try:
-            chosen_employee = int(input("Enter employee ID for project: "))
-        except ValueError:
-            print("Invalid choice. Chose valid employee ID")
-            continue
-        if chosen_employee in employees_id:
-                break
-        else:
-            print("Invalid choice. Chose valid employee ID")
-            
-    employee_for_this_project =  session.query(Employee).filter(Employee.id == chosen_employee).first()
-    employee_for_this_project.project_id = project.id
-    employee_for_this_project.manager_id = manager_id
-    session.add(employee_for_this_project)
-    session.commit()
-    click.echo(f"Your project was Created: {project} !")
+    if employees_id:
+        name = input("Enter New project name: ")
+        description = input("Enter description: ")
+        project = Project(name = name , description = description, manager_id = manager_id)
+        session.add(project)
+        session.commit()
+        print("Your employee: ")
+        [print(f'ID: {emp.id} | Employee name: {emp.name}') for emp in all_manager_employee]
+        print(employees_id)
+        while True:
+            try:
+                chosen_employee = int(input("Enter employee ID for project: "))
+            except ValueError:
+                print("Invalid choice. Chose valid employee ID")
+                continue
+            if chosen_employee in employees_id:
+                    break
+            else:
+                print("Invalid choice. Chose valid employee ID")
+                
+        employee_for_this_project =  session.query(Employee).filter(Employee.id == chosen_employee).first()
+        employee_for_this_project.project_id = project.id
+        employee_for_this_project.manager_id = manager_id
+        session.add(employee_for_this_project)
+        session.commit()
+        print(f"Your project was Created: {project} !")
+    else:
+        print('You have no employees to assign to a new project. Please hire an employee')
     manager_menu(manager_id)
 
 
@@ -165,24 +171,46 @@ def add_project(manager_id):
 
 ############ edit / update #################
 
-@click.command()
-@click.option('--project_id', prompt='Enter project id of project to edit', help='project name')
-@click.option('--manager_id', prompt = 'Enter your manager id', help = 'project description')
-def update_project(manager_id, project_id):
+# @click.command()
+# @click.option('--project_id', prompt='Enter project id of project to edit', help='project name')
+# @click.option('--manager_id', prompt = 'Enter your manager id', help = 'project description')
+def update_project(manager_id):
     projects = session.query(Project).filter((Project.manager_id == manager_id ) | (Project.manager_id == None)).all()
+    
+    all_manager_project = session.query(Project).filter(Project.manager_id == manager_id).all()
+
+    proj_id = [project.id for project in all_manager_project]
+    proj_name = [project.name for project in all_manager_project]
+    proj_description = [project.description for project in all_manager_project]
+    proj_manager_id = [project.manager_id for project in all_manager_project]
+
+    table = PrettyTable()
+    table.field_names = ["Project_ID", "Manager_ID",  "Name", "description" ]
+    table.hrules = True
+    for i in range(0,len(all_manager_project)):
+        table.add_row([proj_id[i], proj_manager_id[i], proj_name[i], proj_description[i]])
+    print(table)
+    
+    project_id = input('Enter project id of project to edit: ')
     employees = session.query(Employee).filter(Employee.project_id == project_id ).all()
     if int(project_id) in [project.id for project in projects]:
         project = session.query(Project).filter( Project.id == project_id).first()
-        choice = input('Do you want to change the project name: y/n?')
+        choice = input('Do you want to change the project name: y/n?: ')
+        options= ['y','n']  
+        while choice not in options:
+            choice = input('invalid input - enter y/n: ')
         if choice == 'y' :
             proj_input = input('Enter new project name: ')
             project.name= proj_input
             session.add(project)
             session.commit()
+            # break
         else:
             pass
         
-        choice = input('Do you want to change the project description: y/n?')
+        choice = input('Do you want to change the project description: y/n?: ')
+        while choice not in options:
+            choice = input('invalid input - enter y/n: ')
         if choice == 'y' :
             proj_input = input('Enter new project description: ')
             project.description= proj_input
@@ -191,7 +219,9 @@ def update_project(manager_id, project_id):
         else:
             pass
         
-        choice = input('Do you want to change the project manager: y/n?')
+        choice = input('Do you want to change the project manager: y/n?: ')
+        while choice not in options:
+            choice = input('invalid input - enter y/n: ')
         if choice == 'y' :
             proj_input = input('Enter new project manager ID: ')
             project.manager_id= proj_input
@@ -204,7 +234,8 @@ def update_project(manager_id, project_id):
         else:
             pass
     else:
-        print('not')
+        print('Stay in your lane. You do not have power to change this project.')
+    manager_menu(manager_id)
 
 
 ### queries ####
@@ -267,54 +298,52 @@ def show_all_manager_employees(session, id):
 #### DELETE ###    
 def delete_employee( manager_id):
     all_manager_employee = session.query(Employee).filter(Employee.manager_id == manager_id).all()
-    print("Your employee: ")
+    print("Your employees: ")
     [print(f'ID: {emp.id} | Employee name: {emp.name}') for emp in all_manager_employee]
-    emloyee_id = [emp.id for emp in all_manager_employee]
+    employee_id = [emp.id for emp in all_manager_employee]
     while True:
         try:
             chosen_employee = int(input("Enter employee ID: "))
         except ValueError:
             print("Invalid choice. Chose valid employee ID")
             continue
-        if chosen_employee in emloyee_id:
+        if chosen_employee in employee_id:
                 break
         else:
-            print("Invalid choice. Chose valid projecct ID")
+            print("This is not your employee. Choose from the table above.")
     employee = session.query(Employee).filter(Employee.id == chosen_employee).first()
     
     session.delete(employee)
     session.commit()
+    print(f'Deleted employee: {employee} ')
     manager_menu(manager_id)
 
 
-        
-# @click.command()
-# @click.option('--manager_id', prompt='Enter your manager ID', help='employee name')  
-# @click.option('--deleted_manager_id', prompt='Enter Manager ID of manager to delete', help='employee name')  
-def delete_manager(id):
-        
 
-        show_all_managers()
-        managers_id = [man.id for man in session.query(Manager).all()]
-        while True:
-            try:
-                chosen_manager = int(input("Enter manager ID: "))
-            except ValueError:
-                print("Invalid choice. Chose valid manager ID")
-                continue
-            if chosen_manager in managers_id:
-                break
-            else:
-                print("Invalid choice. Chose valid manager ID")
-      
-        manager = session.query(Manager).filter(Manager.id == chosen_manager).first()
-        session.delete(manager)
-        session.commit()
-        
-        if int(id) == chosen_manager:
-            print('Congratulations, you are FREEEEEEE!!!!!! Good luck with Antonio')
-            sign_out()
+def delete_manager(id):
+    print('List of current managers:')
+    show_all_managers()
+    managers_id = [man.id for man in session.query(Manager).all()]
+    while True:
+        try:
+            chosen_manager = int(input("Enter manager ID: "))
+        except ValueError:
+            print("Invalid choice. Chose valid manager ID")
+            continue
+        if chosen_manager in managers_id:
+            break
         else:
-            manager_menu(id)
+            print("Invalid choice. Chose valid manager ID")
+    
+    manager = session.query(Manager).filter(Manager.id == chosen_manager).first()
+    session.delete(manager)
+    session.commit()
+    print(f'Deleted manager: {manager} ')
+    
+    if int(id) == chosen_manager:
+        print('Congratulations, you are FREEEEEEE!!!!!! Good luck with Antonio')
+        sign_out()
+    else:
+        manager_menu(id)
 
 

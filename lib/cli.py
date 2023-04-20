@@ -1,7 +1,6 @@
 
 from db.models import Base, Manager, Employee
-from helpers import sign_up,add_employee,delete_employee,add_project,sign_in
-import sys
+from helpers import sign_up,sign_in,exit_app
 import pyfiglet
 
 def start() :
@@ -11,7 +10,8 @@ def start() :
     print(ascii_art)
     options = {
         '1': sign_in,
-        '2': sign_up
+        '2': sign_up,
+        '3': exit_app
     }  
     print("Choose an option:")
     print("----------------------")
@@ -19,10 +19,12 @@ def start() :
     print("----------------------")
     print("| 2. Manager Sign UP |")
     print("----------------------")
+    print("| 3. Exit            |")
+    print("----------------------")
     
     
     while True:
-        choice = input("Enter your choice (1, 2): ")
+        choice = input("Enter your choice (1, 2, 3): ")
         if choice in options:
             break
         else:

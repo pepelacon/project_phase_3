@@ -8,6 +8,8 @@ ipdb = "*"
 sqlalchemy = "*"
 alembic = "*"
 faker = "*"
+prettytable = "*"
+pyfiglet = "*"
 
 [dev-packages]
 
