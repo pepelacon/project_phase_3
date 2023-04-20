@@ -123,10 +123,7 @@ def add_employee(manager_id):
     
     projects_id = [proj.id for proj in all_manager_project]
     if not len(projects_id):
-        print("You need to add project first")
-        print("----------------------------------------------------------------")
-        print("                                                                ")
-        manager_menu(manager_id)
+        chosen_proj = None
     else:
         while True:
             try:
