@@ -2,10 +2,9 @@ from db.models import Base, Manager, Employee, Project
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from prettytable import PrettyTable
-
-
 import click
 import sys
+
 
 engine = create_engine('sqlite:///project.db')
 Base.metadata.create_all(engine)
@@ -14,52 +13,71 @@ session = Session()
 
 
 ###sign in
-@click.command()
-@click.option('--id', prompt='Enter your account ID', help='manager name')
-def select_manager(id):
-    user_manager = session.query(Manager).filter(Manager.id == id).first()
+def select_manager():
+    while True:
+        id = input("Enter your account ID: ").strip()
+        user_manager = session.query(Manager).filter(Manager.id == id).first()
+        if  user_manager:
+            break
+        else:
+            print("Invalid choice. Chose valid manager ID")
+            continue
     print("********************************")
     click.echo(f"Hello {user_manager.name} ")
     print("********************************")
 
     manager_menu(id)
 
+
 def manager_menu(id):
    
-    print("Choose an option:")
-    print("---------------------------")
-    print("| 1 | See your projects?  |")
-    print("| 2 | Add a new project?  |")
-    print("| 3 | See your employees? |")
-    print("| 4 | Add a new employee? |")
-    print("| 5 | Delete an employee? |")
-    print("| 6 | Delete a manager?   |")
-    print("| 7 | Update a project?   |")
-    print("---------------------------")
-    
-    choice = input("Enter your choice (1, 2, 3, 4, 5, 6, 7): ")
+    while True:
+        print("Choose an option:")
+        print("--------------------------")
+        print("| 1 | See your projects  |")
+        print("| 2 | Add a new project  |")
+        print("| 3 | See your employees |")
+        print("| 4 | Add a new employee |")
+        print("| 5 | Delete an employee |")
+        print("| 6 | Delete a manager   |")
+        print("| 7 | Update a project   |")
+        print("| 8 | Sign Out           |")
+        print("--------------------------")
+        
+        choice = input("Enter your choice (1, 2, 3, 4, 5, 6, 7, 8): ")
 
-    if choice == '1' :
-        show_all_manager_projects(session,id)
-    elif  choice == '2':
-        add_project(id)
-    elif  choice == '3':
-        show_all_manager_employees(session,id)
-    elif  choice == '4':
-        add_employee()
-    elif  choice == '5':
-        delete_employee()
-    elif  choice == '6':
-        delete_manager()
-    elif  choice == '7':
-        update_project()
-    
-    else:
-        print("Invalid choice.")
-        sys.exit(1)
+        if choice == '1':
+            show_all_manager_projects(session, id)
+        elif choice == '2':
+            add_project(id)
+        elif choice == '3':
+            show_all_manager_employees(session, id)
+        elif choice == '4':
+            add_employee(id)
+        elif choice == '5':
+            delete_employee(id)
+        elif choice == '6':
+            delete_manager(id)
+        elif choice == '7':
+            update_project()
+        elif choice == '8':
+            sign_out()
+        else:
+            print("------------------------------------")
+            print("You need to chose one of the options")
+            print("------------------------------------")
+
+            continue
+
+        break
+
+
+def sign_out():
+    from cli import start
+    start()
 
 def sign_in():
-    show_all_managers(session)
+    show_all_managers()
     select_manager()
 
 def sign_up():
@@ -77,26 +95,40 @@ def add_manager(name, email):
     click.echo(f"Hello {name} : your id is  {manager.id}!")
     manager_menu(manager.id)
     
-    
-@click.command()
-@click.option('--name', prompt='Enter New Employee name', help='employee name')
-@click.option('--email', prompt = 'Enter Email', help = 'employee email')
-@click.option('--phone_number', prompt = 'Enter phone_number', help = 'employee phone_number')
-@click.option('--position', prompt = 'Enter position', help = 'employee position')
-@click.option('--manager_id', prompt = 'Enter manager_id', help = 'employee manager_id')
-@click.option('--project_id', prompt = 'Enter project_id', help = 'employee project_id')
-def add_employee(name, email,phone_number,position,manager_id,project_id):
-    """Simple program that greets NAME for a total of COUNT times."""
-    employee = Employee(name = name , email = email, phone_number = phone_number, position=position,manager_id=manager_id,project_id=project_id)
+
+############## $ ADD EMPLOYEE --------------- 
+
+def add_employee(manager_id):
+    name = input("Enter New employee name: ")
+    email = input("Enter employee Email: ")
+    # email = input("Enter employee Email: ")
+    phone_number = input("Enter employee Phone Number: ")
+    position = input("Enter employee Position: ")
+
+    ######## ADDD PRETYY TABLES ###########
+    all_manager_project = session.query(Project).filter((Project.manager_id == manager_id ) | (Project.manager_id == None)).all()
+    print("Your employee: ")
+    [print(f'ID: {proj.id} | Project name: {proj.name} | Project manager ID: {proj.manager_id}') for proj in all_manager_project]
+    projects_id = [proj.id for proj in all_manager_project]
+    print(projects_id)
+    while True:
+        try:
+            chosen_proj = int(input("Enter project ID for employee: "))
+        except ValueError:
+            print("Invalid choice. Chose valid projecct ID")
+            continue
+        if chosen_proj in projects_id:
+                break
+        else:
+            print("Invalid choice. Chose valid projecct ID")
+    employee = Employee(name = name , email = email, phone_number = phone_number, position=position, manager_id=manager_id, project_id=chosen_proj)
     session.add(employee)
     session.commit()
-    click.echo(f"Hello {name} -  {email}!")
-
-
+    click.echo(f"Created new {employee}!")
+    manager_menu(manager_id)
 
 
 ############## ! ADD PROJECT ---------------
-
 
 def add_project(manager_id):
     name = input("Enter New project name: ")
@@ -107,13 +139,25 @@ def add_project(manager_id):
     all_manager_employee = session.query(Employee).filter(Employee.manager_id == manager_id).all()
     print("Your employee: ")
     [print(f'ID: {emp.id} | Employee name: {emp.name}') for emp in all_manager_employee]
-    chosen_employee = int(input("Enter employee ID for project: "))
+    employees_id = [emp.id for emp in all_manager_employee]
+    print(employees_id)
+    while True:
+        try:
+            chosen_employee = int(input("Enter employee ID for project: "))
+        except ValueError:
+            print("Invalid choice. Chose valid employee ID")
+            continue
+        if chosen_employee in employees_id:
+                break
+        else:
+            print("Invalid choice. Chose valid employee ID")
+            
     employee_for_this_project =  session.query(Employee).filter(Employee.id == chosen_employee).first()
     employee_for_this_project.project_id = project.id
     employee_for_this_project.manager_id = manager_id
     session.add(employee_for_this_project)
     session.commit()
-    click.echo(f"Created project: {name} , Description  {description} - {manager_id}!")
+    click.echo(f"Your project was Created: {project} !")
     manager_menu(manager_id)
 
 
@@ -164,7 +208,7 @@ def update_project(manager_id, project_id):
 
 
 ### queries ####
-def show_all_managers(session):
+def show_all_managers():
     all_managers = session.query(Manager).all()
     man_id = [manager.id for manager in all_managers]
     man_name = [manager.name for manager in all_managers]
@@ -221,29 +265,56 @@ def show_all_manager_employees(session, id):
 
 
 #### DELETE ###    
-@click.command()
-@click.option('--employee_id', prompt='Enter Employee ID', help='employee name')  
-@click.option('--manager_id', prompt='Enter Manager ID', help='employee name')  
-def delete_employee(employee_id, manager_id):
-    employee = session.query(Employee).filter(Employee.id == employee_id).first()
-    if employee.manager_id == int(manager_id):
-        session.delete(employee)
-        session.commit()
-        manager_menu(manager_id)
-    else:
-        print('This employee does not belong to this manager.')
+def delete_employee( manager_id):
+    all_manager_employee = session.query(Employee).filter(Employee.manager_id == manager_id).all()
+    print("Your employee: ")
+    [print(f'ID: {emp.id} | Employee name: {emp.name}') for emp in all_manager_employee]
+    emloyee_id = [emp.id for emp in all_manager_employee]
+    while True:
+        try:
+            chosen_employee = int(input("Enter employee ID: "))
+        except ValueError:
+            print("Invalid choice. Chose valid employee ID")
+            continue
+        if chosen_employee in emloyee_id:
+                break
+        else:
+            print("Invalid choice. Chose valid projecct ID")
+    employee = session.query(Employee).filter(Employee.id == chosen_employee).first()
+    
+    session.delete(employee)
+    session.commit()
+    manager_menu(manager_id)
+
+
         
+# @click.command()
+# @click.option('--manager_id', prompt='Enter your manager ID', help='employee name')  
+# @click.option('--deleted_manager_id', prompt='Enter Manager ID of manager to delete', help='employee name')  
+def delete_manager(id):
         
-@click.command()
-@click.option('--manager_id', prompt='Enter your manager ID', help='employee name')  
-@click.option('--deleted_manager_id', prompt='Enter Manager ID of manager to delete', help='employee name')  
-def delete_manager(manager_id,deleted_manager_id):
-        manager = session.query(Manager).filter(Manager.id == deleted_manager_id).first()
+
+        show_all_managers()
+        managers_id = [man.id for man in session.query(Manager).all()]
+        while True:
+            try:
+                chosen_manager = int(input("Enter manager ID: "))
+            except ValueError:
+                print("Invalid choice. Chose valid manager ID")
+                continue
+            if chosen_manager in managers_id:
+                break
+            else:
+                print("Invalid choice. Chose valid manager ID")
+      
+        manager = session.query(Manager).filter(Manager.id == chosen_manager).first()
         session.delete(manager)
         session.commit()
-        if int(manager_id) == int(deleted_manager_id):
+        
+        if int(id) == chosen_manager:
             print('Congratulations, you are FREEEEEEE!!!!!! Good luck with Antonio')
+            sign_out()
         else:
-            manager_menu(manager_id)
+            manager_menu(id)
 
 
