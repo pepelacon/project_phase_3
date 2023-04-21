@@ -21,9 +21,9 @@ def select_manager():
         else:
             print("Invalid choice. Chose valid manager ID")
             continue
-    print("********************************")
+    print("-----------------------------")
     print(f"Hello {user_manager.name} ")
-    print("********************************")
+    print("-----------------------------")
 
     manager_menu(id)
 
@@ -32,8 +32,8 @@ def manager_menu(id):
 
     while True:
 
-        print("MAIN MENU")
-        print("Choose an option:")
+        print("        MAIN MENU         ")
+        print("     Choose an option:    ")
         print("--------------------------")
         print("| 1 | See your projects  |")
         print("| 2 | Add a new project  |")
@@ -110,20 +110,33 @@ def add_employee(manager_id):
 
     ######## ADDD PRETYY TABLES ###########
     all_manager_project = session.query(Project).filter((Project.manager_id == manager_id ) | (Project.manager_id == None)).all()
+    print("----------------------------------------------------------------")
+    print("                                                                ")
     print("list of current projects to choose for your new employee:")
-    [print(f'ID: {proj.id} | Project name: {proj.name} | Project manager ID: {proj.manager_id}') for proj in all_manager_project]
+    table = PrettyTable()
+    table.field_names = ["Project_ID", "Project_name",  "Project manager ID"]
+    table.hrules = True
+    for project in all_manager_project:
+        table.add_row([project.id, project.name, project.manager_id])
+    print(table)
+    
     projects_id = [proj.id for proj in all_manager_project]
-    print(projects_id)
-    while True:
-        try:
-            chosen_proj = int(input("Enter project ID to assign employee: "))
-        except ValueError:
-            print("Invalid choice. Chose valid project ID")
-            continue
-        if chosen_proj in projects_id:
-                break
-        else:
-            print("Invalid choice. Chose valid project ID")
+    if not len(projects_id):
+        print("You need to add project first")
+        print("----------------------------------------------------------------")
+        print("                                                                ")
+        manager_menu(manager_id)
+    else:
+        while True:
+            try:
+                chosen_proj = int(input("Enter project ID to assign employee: "))
+            except ValueError:
+                print("Invalid choice. Chose valid project ID")
+                continue
+            if chosen_proj in projects_id:
+                    break
+            else:
+                print("Invalid choice. Chose valid project ID")
     employee = Employee(name = name , email = email, phone_number = phone_number, position=position, manager_id=manager_id, project_id=chosen_proj)
     session.add(employee)
     session.commit()
@@ -171,9 +184,6 @@ def add_project(manager_id):
 
 ############ edit / update #################
 
-# @click.command()
-# @click.option('--project_id', prompt='Enter project id of project to edit', help='project name')
-# @click.option('--manager_id', prompt = 'Enter your manager id', help = 'project description')
 def update_project(manager_id):
     projects = session.query(Project).filter((Project.manager_id == manager_id ) | (Project.manager_id == None)).all()
     
@@ -254,31 +264,19 @@ def show_all_managers():
 def show_all_manager_projects(session,id):
     #### BUILD TABLE FORMATTING
     all_manager_project = session.query(Project).filter(Project.manager_id == id).all()
-
-    proj_id = [project.id for project in all_manager_project]
-    proj_name = [project.name for project in all_manager_project]
-    proj_description = [project.description for project in all_manager_project]
-    proj_manager_id = [project.manager_id for project in all_manager_project]
-
     table = PrettyTable()
     table.field_names = ["Project_ID", "Manager_ID",  "Name", "description" ]
     table.hrules = True
-    for i in range(0,len(all_manager_project)):
-        table.add_row([proj_id[i], proj_manager_id[i], proj_name[i], proj_description[i]])
+    for project in all_manager_project:
+        table.add_row([project.id, project.manager_id, project.name, project.description])
     print(table)
     manager_menu(id)
+
 
 def show_all_manager_employees(session, id):
     #### BUILD TABLE FORMATTING
     all_manager_employee = session.query(Employee).filter(Employee.manager_id == id).all()
-    emp_id = [employee.id for employee in all_manager_employee]
-    man_id = [employee.manager_id for employee in all_manager_employee]
-    pro_id = [employee.project_id for employee in all_manager_employee]
-    name = [employee.name for employee in all_manager_employee]
-    email = [employee.email for employee in all_manager_employee]
-    phone_number = [employee.phone_number for employee in all_manager_employee]
-    position = [employee.position for employee in all_manager_employee]
-    
+
     if len(all_manager_employee) == 0:
         print("-----------------------")
         print("You dont have any power")
@@ -287,8 +285,8 @@ def show_all_manager_employees(session, id):
         table = PrettyTable()
         table.field_names = ["Employee_ID", "Manager_ID", "Project_ID", "Name", "EMAIL", "Phone Number", "Position" ]
         table.hrules = True
-        for i in range(0,len(all_manager_employee)):
-            table.add_row([emp_id[i], man_id[i], pro_id[i], name[i], email[i], phone_number[i], position[i]])
+        for employee in all_manager_employee:
+            table.add_row([employee.id, employee.manager_id, employee.project_id, employee.name, employee.email, employee.phone_number, employee.position])
         print(table)
     
     manager_menu(id)
