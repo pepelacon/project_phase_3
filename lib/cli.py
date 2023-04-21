@@ -5,7 +5,7 @@ import pyfiglet
 
 def start() :
     print('Welcome to the project manager tool!')
-    text = "TotalCotrol"
+    text = "TotalControl"
     ascii_art = pyfiglet.figlet_format(text)
     print(ascii_art)
     options = {

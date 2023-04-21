@@ -16,6 +16,7 @@ def select_manager():
     while True:
         id = input("Enter your account ID: ").strip()
         user_manager = session.query(Manager).filter(Manager.id == id).first()
+        print(user_manager)
         if  user_manager:
             break
         else:
@@ -156,8 +157,10 @@ def add_project(manager_id):
         session.add(project)
         session.commit()
         print("Your employee: ")
+        print("---------------------------------------------------------------------------")
         [print(f'ID: {emp.id} | Employee name: {emp.name}') for emp in all_manager_employee]
-        print(employees_id)
+        print("---------------------------------------------------------------------------")
+        
         while True:
             try:
                 chosen_employee = int(input("Enter employee ID for project: "))
@@ -187,7 +190,7 @@ def add_project(manager_id):
 def update_project(manager_id):
     projects = session.query(Project).filter((Project.manager_id == manager_id ) | (Project.manager_id == None)).all()
     
-    all_manager_project = session.query(Project).filter(Project.manager_id == manager_id).all()
+    all_manager_project = session.query(Project).filter((Project.manager_id == manager_id ) | (Project.manager_id == None)).all()
 
     proj_id = [project.id for project in all_manager_project]
     proj_name = [project.name for project in all_manager_project]
@@ -297,18 +300,26 @@ def show_all_manager_employees(session, id):
 def delete_employee( manager_id):
     all_manager_employee = session.query(Employee).filter(Employee.manager_id == manager_id).all()
     print("Your employees: ")
+    print("---------------------------------------------------------------------------")
     [print(f'ID: {emp.id} | Employee name: {emp.name}') for emp in all_manager_employee]
+    print("---------------------------------------------------------------------------")
     employee_id = [emp.id for emp in all_manager_employee]
-    while True:
-        try:
-            chosen_employee = int(input("Enter employee ID: "))
-        except ValueError:
-            print("Invalid choice. Chose valid employee ID")
-            continue
-        if chosen_employee in employee_id:
-                break
-        else:
-            print("This is not your employee. Choose from the table above.")
+    if all_manager_employee:
+        while True:
+            try:
+                chosen_employee = int(input("Enter employee ID: "))
+            except ValueError:
+                print("Invalid choice. Chose valid employee ID")
+                continue
+            if chosen_employee in employee_id:
+                    break
+            else:
+                print("This is not your employee. Choose from the table above.")
+                
+    else:
+        print("You dont have employees, hire them before fire")
+        print("---------------------------------------------------------------------------")
+        manager_menu(manager_id)
     employee = session.query(Employee).filter(Employee.id == chosen_employee).first()
     
     session.delete(employee)

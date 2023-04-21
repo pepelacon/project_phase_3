@@ -5,7 +5,8 @@
 - in the terminal run: pipenv install
 - in the terminal run: pipenv shell
 - in the terminal run: python lib/db/seed.py
-- in the terminal run: python lib/cli.py
+in the terminal navigate to lib. (cd lib)
+- in the terminal run: python cli.py
 
 ## Description
 - This is a project management tool for managers
