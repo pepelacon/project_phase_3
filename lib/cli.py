@@ -21,6 +21,7 @@ def start() :
     print("----------------------")
     print("| 3. Exit            |")
     print("----------------------")
+    print("                     ")
     
     
     while True:

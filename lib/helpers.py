@@ -22,6 +22,7 @@ def select_manager():
         else:
             print("Invalid choice. Chose valid manager ID")
             continue
+    print("                            ")
     print("-----------------------------")
     print(f"Hello {user_manager.name} ")
     print("-----------------------------")
@@ -32,7 +33,7 @@ def select_manager():
 def manager_menu(id):
 
     while True:
-
+        print("                          ")
         print("        MAIN MENU         ")
         print("     Choose an option:    ")
         print("--------------------------")
@@ -45,6 +46,7 @@ def manager_menu(id):
         print("| 7 | Update a project   |")
         print("| 8 | Sign Out           |")
         print("--------------------------")
+        print("                          ")
         
         choice = input("Enter your choice (1, 2, 3, 4, 5, 6, 7, 8): ")
 
